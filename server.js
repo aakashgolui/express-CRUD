@@ -2,6 +2,7 @@ import express from "express";
 import { fileURLToPath } from "url";
 import path, { dirname } from "path";
 import posts from "./routes/posts.js";
+import logger from "./middleware/logger.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -16,6 +17,9 @@ const app = express();
 //! Highlights: Body parser middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Logger middleware
+app.use(logger);
 
 //! Routes
 app.use("/api/posts", posts);
