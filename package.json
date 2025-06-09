@@ -1,0 +1,19 @@
+{
+  "name": "nodejs-creash-001",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon --env-file=.env server.js"
+  },
+  "keywords": [],
+  "author": "Akash Golui",
+  "license": "MIT",
+  "description": "",
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
