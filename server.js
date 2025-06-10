@@ -4,6 +4,7 @@ import path, { dirname } from "path";
 import posts from "./routes/posts.js";
 import logger from "./middleware/logger.js";
 import errorHandler from "./middleware/error.js";
+import notFoundHandler from "./middleware/notFound.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -24,6 +25,9 @@ app.use(logger);
 
 //! Routes
 app.use("/api/posts", posts);
+
+// Route not found handler
+app.use(notFoundHandler);
 
 // Error handler
 app.use(errorHandler);
