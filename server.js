@@ -3,6 +3,7 @@ import { fileURLToPath } from "url";
 import path, { dirname } from "path";
 import posts from "./routes/posts.js";
 import logger from "./middleware/logger.js";
+import errorHandler from "./middleware/error.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -23,6 +24,9 @@ app.use(logger);
 
 //! Routes
 app.use("/api/posts", posts);
+
+// Error handler
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server is running on PORT ${PORT}"`);

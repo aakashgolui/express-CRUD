@@ -29,27 +29,27 @@ router.get("/", (req, res) => {
 });
 
 //get post by id
-router.get("/:id", (req, res) => {
+router.get("/:id", (req, res, next) => {
   const { id } = req.params;
   const post = posts.find((post) => post.id === parseInt(id));
 
   if (!post) {
-    return res.status(404).json({
-      msg: "No post found with this id",
-    });
+    const error = new Error("No post found with this id");
+    error.status = 404;
+    return next(error);
   }
 
   res.status(200).json(post);
 });
 
 // Add new post
-router.post("/", (req, res) => {
+router.post("/", (req, res, next) => {
   const title = req.body.title;
 
   if (!title || title === "") {
-    return res.status(400).json({
-      msg: "Please provide a valid title",
-    });
+    const error = new Error("Please provide a valid title");
+    error.status = 400;
+    return next(error);
   }
 
   posts.push({
@@ -64,18 +64,21 @@ router.post("/", (req, res) => {
 });
 
 //Update post
-router.put("/:id", (req, res) => {
+router.put("/:id", (req, res, next) => {
   const id = parseInt(req.params.id);
   const title = req.body.title;
   const postIndex = posts.findIndex((post) => post.id === id);
 
-  if (postIndex < 0)
-    return res.status(404).json({ msg: `A post with ${id} not found` });
+  if (postIndex < 0) {
+    const error = new Error(`A post with id ${id} not found`);
+    error.status = 404;
+    return next(error);
+  }
 
   if (!title || title === "") {
-    return res.status(400).json({
-      msg: "Please provide a valid title",
-    });
+    const error = new Error("Please provide a valid title");
+    error.status = 400;
+    return next(error);
   }
 
   posts[postIndex].title = title;
@@ -84,12 +87,15 @@ router.put("/:id", (req, res) => {
 });
 
 //Delete post
-router.delete("/:id", (req, res) => {
+router.delete("/:id", (req, res, next) => {
   const id = parseInt(req.params.id);
   const postIndex = posts.findIndex((post) => post.id === id);
 
-  if (postIndex < 0)
-    return res.status(404).json({ msg: `A post with ${id} not found` });
+  if (postIndex < 0) {
+    const error = new Error(`A post with id ${id} not found`);
+    error.status = 404;
+    return next(error);
+  }
 
   posts.splice(postIndex, 1);
 
