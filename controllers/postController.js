@@ -23,14 +23,22 @@ let posts = [
  * @description Get all posts or a limited number of posts
  * @route GET /api/posts
  */
-export const getPosts = (req, res) => {
-  const limit = parseInt(req.query.limit);
+export const getPosts = async (req, res, next) => {
+  try {
+    const limit = parseInt(req.query.limit, 10);
+    const query = Post.find({});
 
-  if (!isNaN(limit) && limit > 0) {
-    return res.status(200).json(posts.slice(0, limit));
+    if (!isNaN(limit) && limit > 0) {
+      query.limit(limit);
+    }
+
+    const posts = await query;
+    return res.status(200).json(posts);
+  } catch (error) {
+    const err = new Error(error.message);
+    err.status = 500;
+    return next(err);
   }
-
-  res.status(200).json(posts);
 };
 
 /**
@@ -40,17 +48,18 @@ export const getPosts = (req, res) => {
  * @description Get a single post by id
  * @route GET /api/posts/:id
  */
-export const getPost = (req, res, next) => {
-  const { id } = req.params;
-  const post = posts.find((post) => post.id === parseInt(id));
+export const getPost = async (req, res, next) => {
+  try {
+    const { id } = req.params;
 
-  if (!post) {
+    const post = await Post.find({ _id: id });
+
+    return res.status(200).json(post);
+  } catch (err) {
     const error = new Error("No post found with this id");
     error.status = 404;
     return next(error);
   }
-
-  res.status(200).json(post);
 };
 
 /**
