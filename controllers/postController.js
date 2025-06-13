@@ -52,13 +52,19 @@ export const getPost = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const post = await Post.find({ _id: id });
+    const post = await Post.findById(id);
 
-    return res.status(200).json(post);
-  } catch (err) {
-    const error = new Error("No post found with this id");
-    error.status = 404;
-    return next(error);
+    if (!post) {
+      const error = new Error("No post found with this ID");
+      error.status = 404;
+      return next(error);
+    }
+
+    return res.status(200).json(post[0]);
+  } catch (error) {
+    const err = new Error(error.message);
+    err.status = 500;
+    return next(err);
   }
 };
 
