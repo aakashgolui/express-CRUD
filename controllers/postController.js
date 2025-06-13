@@ -1,3 +1,5 @@
+import { Post } from "../schemas/postSchema.js";
+
 let posts = [
   {
     id: 1,
@@ -58,7 +60,7 @@ export const getPost = (req, res, next) => {
  * @description Create a new post
  * @route POST /api/posts
  */
-export const createPost = (req, res, next) => {
+export const createPost = async (req, res, next) => {
   const title = req.body.title;
 
   if (!title || title === "") {
@@ -67,15 +69,19 @@ export const createPost = (req, res, next) => {
     return next(error);
   }
 
-  posts.push({
-    id: posts.length + 1,
-    title,
-  });
-
-  res.status(201).json({
-    msg: "New post created!",
-    posts: posts,
-  });
+  try {
+    await Post.create({
+      title,
+    });
+    res.status(201).json({
+      msg: "New post created!",
+      posts: posts,
+    });
+  } catch (error) {
+    const err = new Error(error.message);
+    err.status = 500;
+    return next(err);
+  }
 };
 
 /**
