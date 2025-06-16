@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 import errorHandler from './middleware/error.ts';
 import logger from './middleware/logger.ts';
 import notFoundHandler from './middleware/notFound.ts';
-import posts from './routes/posts.ts';
+import { AuthRoutes, PostRoutes } from './routes/index.ts';
 
 const PORT = process.env.PORT || 8080;
 const DB_URL = process.env.DB_URL || '';
@@ -25,7 +25,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(logger);
 
 //! Routes
-app.use('/api/posts', posts);
+app.use('/api/posts', PostRoutes);
+app.use('/api/auth', AuthRoutes);
 
 // Route not found handler
 app.use(notFoundHandler);

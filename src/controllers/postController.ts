@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { Post } from '../schemas/postSchema.ts';
+import { Post } from '../models/postModel.ts';
 import { CustomError, IPostItem } from '../types/index.ts';
 
 /**
