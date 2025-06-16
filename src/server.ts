@@ -7,12 +7,13 @@ import notFoundHandler from './middleware/notFound.ts';
 import posts from './routes/posts.ts';
 
 const PORT = process.env.PORT || 8080;
+const DB_URL = process.env.DB_URL || '';
 
 const app = express();
 
 // Connect mongo
 mongoose
-  .connect('mongodb://127.0.0.1:27017/blog')
+  .connect(DB_URL)
   .then(() => console.log(colors.bgGreen('mongodb connected')))
   .catch((err: any) => console.error(`mongodb error: ${err}`));
 
