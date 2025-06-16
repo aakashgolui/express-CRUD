@@ -1,6 +1,6 @@
+import colors from 'colors';
 import express from 'express';
 import mongoose from 'mongoose';
-import colors from 'colors';
 import errorHandler from './middleware/error.ts';
 import logger from './middleware/logger.ts';
 import notFoundHandler from './middleware/notFound.ts';

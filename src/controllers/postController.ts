@@ -1,22 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { Post } from '../schemas/postSchema.ts';
-import { CustomError } from '../middleware/error.ts';
-import { IPostItem } from '../types/index.ts';
-
-let posts = [
-  {
-    id: 1,
-    title: 'Post one',
-  },
-  {
-    id: 2,
-    title: 'Post two',
-  },
-  {
-    id: 3,
-    title: 'Post three',
-  },
-];
+import { CustomError, IPostItem } from '../types/index.ts';
 
 /**
  *
@@ -109,9 +93,9 @@ export const createPost = async (
     await Post.create({
       title,
     });
+
     res.status(201).json({
       msg: 'New post created!',
-      posts: posts,
     });
   } catch (error) {
     if (error && typeof error === 'object' && 'message' in error) {
@@ -171,20 +155,32 @@ export const updatePost = async (
  * @description Delete a post by id
  * @route DELETE /api/posts/:id
  */
-export const deletePost = (req: Request, res: Response, next: NextFunction) => {
-  const id = parseInt(req.params.id);
-  const postIndex = posts.findIndex((post) => post.id === id);
+export const deletePost = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const id = req.params.id;
 
-  if (postIndex < 0) {
-    const error: CustomError = new Error(`A post with id ${id} not found`);
-    error.status = 404;
-    return next(error);
+    const post: IPostItem | null = await Post.findById<IPostItem>(id);
+
+    if (!post) {
+      const error: CustomError = new Error(`A post with id ${id} not found`);
+      error.status = 404;
+      return next(error);
+    }
+
+    await Post.deleteOne({ _id: id });
+
+    res.status(200).json({
+      msg: `Post with id: ${id} is deleted!`,
+    });
+  } catch (error) {
+    if (error && typeof error === 'object' && 'message' in error) {
+      const err: CustomError = new Error((error as Error).message);
+      err.status = 500;
+      return next(err);
+    }
   }
-
-  posts.splice(postIndex, 1);
-
-  res.status(200).json({
-    msg: `Post with id:${id} is deleted!`,
-    posts: posts,
-  });
 };

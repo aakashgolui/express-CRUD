@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { CustomError } from './error.ts';
+import { CustomError } from '../types/index.ts';
 
 const notFoundHandler = (req: Request, res: Response, next: NextFunction) => {
   const err: CustomError = new Error('Route not found');

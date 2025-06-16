@@ -1,8 +1,5 @@
-import { Request, Response, NextFunction } from 'express';
-
-export interface CustomError extends Error {
-  status?: number;
-}
+import { NextFunction, Request, Response } from 'express';
+import { CustomError } from '../types/index.ts';
 
 const errorHandler = (
   err: CustomError,
