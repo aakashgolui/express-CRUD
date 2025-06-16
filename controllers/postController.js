@@ -106,26 +106,35 @@ export const createPost = async (req, res, next) => {
  * @description Update an existing post by id
  * @route PUT /api/posts/:id
  */
-export const updatePost = (req, res, next) => {
-  const id = parseInt(req.params.id);
-  const title = req.body.title;
-  const postIndex = posts.findIndex((post) => post.id === id);
+export const updatePost = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const { title } = req.body;
 
-  if (postIndex < 0) {
-    const error = new Error(`A post with id ${id} not found`);
-    error.status = 404;
-    return next(error);
+    if (!title || title.trim() === "") {
+      const error = new Error("Please provide a valid title");
+      error.status = 400;
+      return next(error);
+    }
+
+    const post = await Post.findById(id);
+
+    if (!post) {
+      const error = new Error(`A post with id ${id} not found`);
+      error.status = 404;
+      return next(error);
+    }
+
+    const updatedPost = await Post.findByIdAndUpdate(
+      id,
+      { $set: { title } },
+      { new: true } // ← returns the updated document
+    );
+
+    res.status(200).json({ msg: "Post updated!", result: updatedPost });
+  } catch (error) {
+    next(error); // Properly forward unexpected errors
   }
-
-  if (!title || title === "") {
-    const error = new Error("Please provide a valid title");
-    error.status = 400;
-    return next(error);
-  }
-
-  posts[postIndex].title = title;
-
-  res.status(200).json({ msg: "Post updated!", post: posts[postIndex] });
 };
 
 /**
