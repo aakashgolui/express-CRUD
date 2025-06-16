@@ -1,17 +1,20 @@
-import { Post } from "../schemas/postSchema.js";
+import { NextFunction, Request, Response } from 'express';
+import { Post } from '../schemas/postSchema.ts';
+import { CustomError } from '../middleware/error.ts';
+import { IPostItem } from '../types/index.ts';
 
 let posts = [
   {
     id: 1,
-    title: "Post one",
+    title: 'Post one',
   },
   {
     id: 2,
-    title: "Post two",
+    title: 'Post two',
   },
   {
     id: 3,
-    title: "Post three",
+    title: 'Post three',
   },
 ];
 
@@ -23,9 +26,16 @@ let posts = [
  * @description Get all posts or a limited number of posts
  * @route GET /api/posts
  */
-export const getPosts = async (req, res, next) => {
+export const getPosts = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
-    const limit = parseInt(req.query.limit, 10);
+    const limitParam = req.query?.limit;
+    const limit =
+      typeof limitParam === 'string' ? parseInt(limitParam, 10) : NaN;
+
     const query = Post.find({});
 
     if (!isNaN(limit) && limit > 0) {
@@ -33,11 +43,12 @@ export const getPosts = async (req, res, next) => {
     }
 
     const posts = await query;
-    return res.status(200).json(posts);
+    res.status(200).json(posts);
   } catch (error) {
-    const err = new Error(error.message);
-    err.status = 500;
-    return next(err);
+    if (error && typeof error === 'object' && 'message' in error) {
+      const err = new Error((error as Error).message);
+      return next(err);
+    }
   }
 };
 
@@ -48,23 +59,29 @@ export const getPosts = async (req, res, next) => {
  * @description Get a single post by id
  * @route GET /api/posts/:id
  */
-export const getPost = async (req, res, next) => {
+export const getPost = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const { id } = req.params;
 
-    const post = await Post.findById(id);
+    const post: IPostItem | null = await Post.findById<IPostItem>(id);
 
     if (!post) {
-      const error = new Error("No post found with this ID");
+      const error: CustomError = new Error('No post found with this ID');
       error.status = 404;
       return next(error);
     }
 
-    return res.status(200).json(post[0]);
+    res.status(200).json(post);
   } catch (error) {
-    const err = new Error(error.message);
-    err.status = 500;
-    return next(err);
+    if (error && typeof error === 'object' && 'message' in error) {
+      const err: CustomError = new Error((error as Error).message);
+      err.status = 500;
+      return next(err);
+    }
   }
 };
 
@@ -75,11 +92,15 @@ export const getPost = async (req, res, next) => {
  * @description Create a new post
  * @route POST /api/posts
  */
-export const createPost = async (req, res, next) => {
+export const createPost = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   const title = req.body.title;
 
-  if (!title || title === "") {
-    const error = new Error("Please provide a valid title");
+  if (!title || title === '') {
+    const error: CustomError = new Error('Please provide a valid title');
     error.status = 400;
     return next(error);
   }
@@ -89,13 +110,15 @@ export const createPost = async (req, res, next) => {
       title,
     });
     res.status(201).json({
-      msg: "New post created!",
+      msg: 'New post created!',
       posts: posts,
     });
   } catch (error) {
-    const err = new Error(error.message);
-    err.status = 500;
-    return next(err);
+    if (error && typeof error === 'object' && 'message' in error) {
+      const err: CustomError = new Error((error as Error).message);
+      err.status = 500;
+      return next(err);
+    }
   }
 };
 
@@ -106,13 +129,17 @@ export const createPost = async (req, res, next) => {
  * @description Update an existing post by id
  * @route PUT /api/posts/:id
  */
-export const updatePost = async (req, res, next) => {
+export const updatePost = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const id = req.params.id;
     const { title } = req.body;
 
-    if (!title || title.trim() === "") {
-      const error = new Error("Please provide a valid title");
+    if (!title || title.trim() === '') {
+      const error: CustomError = new Error('Please provide a valid title');
       error.status = 400;
       return next(error);
     }
@@ -120,7 +147,7 @@ export const updatePost = async (req, res, next) => {
     const post = await Post.findById(id);
 
     if (!post) {
-      const error = new Error(`A post with id ${id} not found`);
+      const error: CustomError = new Error(`A post with id ${id} not found`);
       error.status = 404;
       return next(error);
     }
@@ -128,10 +155,10 @@ export const updatePost = async (req, res, next) => {
     const updatedPost = await Post.findByIdAndUpdate(
       id,
       { $set: { title } },
-      { new: true } // ← returns the updated document
+      { new: true }, // ← returns the updated document
     );
 
-    res.status(200).json({ msg: "Post updated!", result: updatedPost });
+    res.status(200).json({ msg: 'Post updated!', result: updatedPost });
   } catch (error) {
     next(error); // Properly forward unexpected errors
   }
@@ -144,12 +171,12 @@ export const updatePost = async (req, res, next) => {
  * @description Delete a post by id
  * @route DELETE /api/posts/:id
  */
-export const deletePost = (req, res, next) => {
+export const deletePost = (req: Request, res: Response, next: NextFunction) => {
   const id = parseInt(req.params.id);
   const postIndex = posts.findIndex((post) => post.id === id);
 
   if (postIndex < 0) {
-    const error = new Error(`A post with id ${id} not found`);
+    const error: CustomError = new Error(`A post with id ${id} not found`);
     error.status = 404;
     return next(error);
   }
