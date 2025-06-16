@@ -6,8 +6,11 @@ import {
   getPosts,
   updatePost,
 } from '../controllers/postController.ts';
+import { verifyToken } from '../middleware/authMiddleware.ts';
 
 const router = express.Router();
+
+router.use(verifyToken);
 
 //get all posts
 router.get('/', getPosts);
