@@ -12,16 +12,20 @@ export function verifyToken(
   res: Response,
   next: NextFunction,
 ): void {
-  const token = req.header('Authorization');
-  if (!token) {
-    res.status(401).json({ error: 'Access denied' });
+  const authHeader = req.header('Authorization');
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    res
+      .status(401)
+      .json({ error: 'Access denied. No token provided or invalid format' });
     return;
   }
+
+  const token = authHeader.replace('Bearer ', '').trim();
 
   try {
     const decoded = jwt.verify(token, secretKey);
 
-    // Narrow the type
     if (typeof decoded === 'object' && 'userId' in decoded) {
       req.userId = (decoded as JwtPayload).userId as string;
       next();

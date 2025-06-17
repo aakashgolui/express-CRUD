@@ -6,6 +6,24 @@ import { CustomError } from '../types/index.ts';
 
 const secretKey = process.env.JWT_SECRET_KEY || '';
 
+export const register = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { username, password } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = new User({ username, password: hashedPassword });
+    await user.save();
+    res.status(201).json({ message: 'User registered successfully' });
+  } catch (error) {
+    const err: CustomError = new Error('Registration failed');
+    err.status = 500;
+    return next(err);
+  }
+};
+
 export const login = async (
   req: Request,
   res: Response,
