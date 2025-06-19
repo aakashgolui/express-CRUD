@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { Post } from '../models/postModel.ts';
+import { findAllPosts, findPostById } from '../services/postService.ts';
 import { CustomError, IPostItem } from '../types/index.ts';
 
 /**
@@ -20,13 +21,7 @@ export const getPosts = async (
     const limit =
       typeof limitParam === 'string' ? parseInt(limitParam, 10) : NaN;
 
-    const query = Post.find({});
-
-    if (!isNaN(limit) && limit > 0) {
-      query.limit(limit);
-    }
-
-    const posts = await query;
+    const posts = await findAllPosts(limit);
     res.status(200).json(posts);
   } catch (error) {
     if (error && typeof error === 'object' && 'message' in error) {
@@ -51,7 +46,7 @@ export const getPost = async (
   try {
     const { id } = req.params;
 
-    const post: IPostItem | null = await Post.findById<IPostItem>(id);
+    const post: IPostItem | null = await findPostById(id);
 
     if (!post) {
       const error: CustomError = new Error('No post found with this ID');
@@ -128,7 +123,7 @@ export const updatePost = async (
       return next(error);
     }
 
-    const post = await Post.findById(id);
+    const post = await findPostById(id);
 
     if (!post) {
       const error: CustomError = new Error(`A post with id ${id} not found`);
@@ -163,7 +158,7 @@ export const deletePost = async (
   try {
     const id = req.params.id;
 
-    const post: IPostItem | null = await Post.findById<IPostItem>(id);
+    const post: IPostItem | null = await findPostById(id);
 
     if (!post) {
       const error: CustomError = new Error(`A post with id ${id} not found`);

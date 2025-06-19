@@ -10,8 +10,6 @@ import { verifyToken } from '../middleware/authMiddleware.ts';
 
 const router = express.Router();
 
-router.use(verifyToken);
-
 /**
  * @swagger
  * tags:
@@ -67,7 +65,7 @@ router.use(verifyToken);
  *               items:
  *                 $ref: '#/components/schemas/Post'
  */
-router.get('/', getPosts);
+router.get('/', verifyToken, getPosts);
 
 /**
  * @swagger
@@ -94,7 +92,7 @@ router.get('/', getPosts);
  *       404:
  *         description: Post not found
  */
-router.get('/:id', getPost);
+router.get('/:id', verifyToken, getPost);
 
 /**
  * @swagger
@@ -126,7 +124,7 @@ router.get('/:id', getPost);
  *             schema:
  *               $ref: '#/components/schemas/Post'
  */
-router.post('/', createPost);
+router.post('/', verifyToken, createPost);
 
 /**
  * @swagger
@@ -160,7 +158,7 @@ router.post('/', createPost);
  *       404:
  *         description: Post not found
  */
-router.put('/:id', updatePost);
+router.put('/:id', verifyToken, updatePost);
 
 /**
  * @swagger
@@ -183,6 +181,6 @@ router.put('/:id', updatePost);
  *       404:
  *         description: Post not found
  */
-router.delete('/:id', deletePost);
+router.delete('/:id', verifyToken, deletePost);
 
 export default router;

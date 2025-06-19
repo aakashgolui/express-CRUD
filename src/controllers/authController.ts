@@ -48,7 +48,7 @@ export const login = async (
       expiresIn: '1h',
     });
 
-    res.status(200).json({ token });
+    res.status(200).json({ token, user });
   } catch (error) {
     const err: CustomError = new Error(
       error instanceof Error ? error.message : 'Internal Server Error',
